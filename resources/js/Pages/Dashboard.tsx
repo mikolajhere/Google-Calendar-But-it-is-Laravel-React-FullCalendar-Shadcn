@@ -18,26 +18,74 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
-import { useState } from "react";
+
+import {
+    Cloud,
+    CreditCard,
+    Github,
+    Keyboard,
+    LifeBuoy,
+    LogOut,
+    Mail,
+    MessageSquare,
+    Plus,
+    PlusCircle,
+    Settings,
+    User,
+    UserPlus,
+    Users,
+} from "lucide-react";
+
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuPortal,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
+
+import { useState, useRef } from "react";
 
 export default function Dashboard({ auth }: PageProps) {
     // State to control dialog visibility and event title
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEventTitle, setSelectedEventTitle] = useState("");
+    const calendarRef = useRef<FullCalendar>(null); // Add a ref for the calendar
 
     const handleDateClick = (info: any) => {
-        setSelectedEventTitle(info.dateStr); // Set the event title
-        setIsDialogOpen(true); // Open the dialog
+        // setSelectedEventTitle(info.dateStr); // Set the event title
+        // setIsDialogOpen(true); // Open the dialog
+        // if calendar mode is year then change to day
+        console.log({ info });
+        if (info.view.type === "yearGrid" && calendarRef.current) {
+            calendarRef.current.getApi().changeView("timeGridDay"); // Change the calendar view
+        }
     };
 
     const handleEventClick = (info: any) => {
-        setSelectedEventTitle(info.event.title); // Set the event title
+        console.log(info);
+        setSelectedEventTitle(
+            `${info.event._def.extendedProps.time} ${info.event.title}`
+        ); // Set the event title
         setIsDialogOpen(true); // Open the dialog
     };
 
     const closeDialog = () => {
         setIsDialogOpen(false); // Close the dialog
         setSelectedEventTitle(""); // Clear the selected title
+    };
+
+    const changeView = (view: string) => {
+        if (calendarRef.current) {
+            calendarRef.current.getApi().changeView(view); // Change the calendar view
+        }
     };
 
     return (
@@ -63,7 +111,9 @@ export default function Dashboard({ auth }: PageProps) {
                     </p>
                 </aside>
                 <div className="flex-1">
+                    {/* FullCalendar component */}
                     <FullCalendar
+                        ref={calendarRef}
                         locale={"pl"}
                         themeSystem="standard"
                         aspectRatio={2.2}
@@ -85,17 +135,41 @@ export default function Dashboard({ auth }: PageProps) {
                             hour12: false,
                         }}
                         firstDay={1}
+                        displayEventTime={true}
                         initialView="dayGridMonth"
                         events={[
-                            { title: "event 1", date: "2024-09-02" },
-                            { title: "event 2", date: "2024-09-16" },
-                            { title: "event 3", date: "2024-09-27" },
+                            {
+                                title: "event 1",
+                                date: "2024-09-02",
+                                time: "10:00",
+                            },
+                            {
+                                title: "event 2",
+                                date: "2024-09-16",
+                                time: "17:00",
+                            },
+                            {
+                                title: "event 3",
+                                date: "2024-09-27",
+                                time: "10:00",
+                            },
                         ]}
+                        customButtons={{
+                            myCustomButton: {
+                                // copy Open button from DropdownMenu
+                                text: "Open",
+                                click: () => {
+                                    document
+                                        .getElementById("radix-:r3:")
+                                        ?.click();
+                                },
+                            },
+                        }}
                         dateClick={handleDateClick}
                         eventClick={handleEventClick}
                         headerToolbar={{
                             left: "today, prev, next, title",
-                            right: "timeGridDay,timeGridWeek,dayGridMonth,yearGrid",
+                            right: "myCustomButton",
                         }}
                         views={{
                             yearGrid: {
@@ -108,6 +182,7 @@ export default function Dashboard({ auth }: PageProps) {
                 </div>
             </div>
 
+            {/* Dialog for events */}
             <div>
                 <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
                     <DialogContent className="sm:max-w-[425px]">
@@ -125,6 +200,39 @@ export default function Dashboard({ auth }: PageProps) {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+            </div>
+
+            {/* Dropdown Menu for changing calendar view */}
+            <div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline">Open</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>Change View</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                            onClick={() => changeView("timeGridDay")}
+                        >
+                            <span>Day View</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => changeView("timeGridWeek")}
+                        >
+                            <span>Week View</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => changeView("dayGridMonth")}
+                        >
+                            <span>Month View</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={() => changeView("yearGrid")}
+                        >
+                            <span>Year View</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </AuthenticatedLayout>
     );
