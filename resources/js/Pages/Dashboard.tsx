@@ -213,6 +213,30 @@ export default function Dashboard({ auth }: PageProps) {
         }
     };
 
+    const asideToggleMenu = () => {
+        document.querySelector("aside")?.classList.toggle("max-w-64");
+        document.querySelector("aside")?.classList.toggle("max-w-4");
+        // also toggle p-4 class with p-2
+        document.querySelector(".plus-button")?.classList.toggle("mr-3");
+        document.querySelector(".btn-event-add")?.classList.toggle("px-4");
+        document.querySelector(".btn-event-add")?.classList.toggle("px-2");
+        document.querySelector(".btn-event-add")?.classList.toggle("relative");
+        document.querySelector(".btn-event-add")?.classList.toggle("absolute");
+        document.querySelector(".btn-event-add")?.classList.toggle("left-4");
+
+        document.querySelectorAll(".aside-text").forEach((el) => {
+            el.classList.toggle("hidden");
+        });
+
+        document.querySelector(".aside-title")?.classList.toggle("hidden");
+        // set aspect ratio for calendar
+        if (document.querySelector(".fc-view")) {
+            document
+                .querySelector(".fc-view")
+                ?.classList.toggle("aspect-ratio-1.92");
+        }
+    };
+
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
@@ -220,14 +244,7 @@ export default function Dashboard({ auth }: PageProps) {
                 <header className="w-full flex items-center justify-between px-4 py-2 border-b border-gray-200">
                     <div className="gap-2 flex items-center justify-between">
                         <Button
-                            onClick={() => {
-                                document
-                                    .querySelector("aside")
-                                    ?.classList.toggle("max-w-64");
-                                document
-                                    .querySelector("aside")
-                                    ?.classList.toggle("max-w-4");
-                            }}
+                            onClick={asideToggleMenu}
                             className="bg-transparent shadow-none rounded-full hover:bg-slate-100 w-12 h-12 p-2"
                         >
                             <HamburgerMenuIcon className="w-5 h-5 text-gray-600" />
@@ -382,18 +399,18 @@ export default function Dashboard({ auth }: PageProps) {
                     </div>
                 </header>
                 <div className="flex-1 flex">
-                    <aside className="h-full border-r p-4 mini-calendar max-w-64">
+                    <aside className="h-full border-r p-2 mini-calendar max-w-64 relative">
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button
-                                    className="flex items-center h-auto shadow-sm shadow-slate-400 rounded-full"
+                                    className="flex z-50 items-center h-auto shadow-sm shadow-slate-400 rounded-full animate-in animate-out btn-event-add left-0"
                                     variant="outline"
                                 >
                                     <svg
                                         width="36"
                                         height="36"
                                         viewBox="0 0 36 36"
-                                        className="mr-3"
+                                        className="mr-3 plus-button"
                                     >
                                         <path
                                             fill="#34A853"
@@ -416,13 +433,13 @@ export default function Dashboard({ auth }: PageProps) {
                                             d="M0 0h36v36H0z"
                                         ></path>
                                     </svg>
-                                    <span className="">Create</span>
+                                    <span className="aside-text">Create</span>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
                                         height="16"
                                         fill="currentColor"
-                                        className="w-2.5 h-2.5 ml-4 text-gray-500"
+                                        className="w-2.5 h-2.5 ml-4 text-gray-500 aside-text"
                                         viewBox="0 0 16 16"
                                     >
                                         <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
@@ -482,8 +499,8 @@ export default function Dashboard({ auth }: PageProps) {
                                 </div>
                             </PopoverContent>
                         </Popover>
-                        <div className="">
-                            <div className="flex items-center justify-between mt-4">
+                        <div className="p-2">
+                            <div className="flex items-center justify-between mt-4 aside-title">
                                 <span className="text-gray-700 text-md leading-6 font-medium capitalize ml-2">
                                     {miniCalendarTitle}
                                 </span>
