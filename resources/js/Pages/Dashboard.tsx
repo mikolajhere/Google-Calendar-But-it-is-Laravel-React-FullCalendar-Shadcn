@@ -43,6 +43,8 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 export default function Dashboard({ auth }: PageProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEventTitle, setSelectedEventTitle] = useState("");
+    const [selectedEventDescription, setSelectedEventDescription] =
+        useState("");
     const calendarRef = useRef<FullCalendar>(null);
     const miniCalendarRef = useRef<FullCalendar>(null);
     const [currentView, setCurrentView] = useState("dayGridMonth");
@@ -50,6 +52,33 @@ export default function Dashboard({ auth }: PageProps) {
     const [miniCalendarTitle, setMiniCalendarTitle] = useState<
         string | undefined
     >(undefined);
+
+    const [visits, setVisits] = useState([]);
+
+    useEffect(() => {
+        fetch("/api/visits?user_id=1") // Użyj odpowiedniego URL API
+            .then((response) => response.json())
+            .then((data) => {
+                setVisits(
+                    data.visits.map((visit: any) => ({
+                        time: new Date(visit.updated_at).toLocaleTimeString(
+                            [],
+                            { hour: "2-digit", minute: "2-digit" }
+                        ),
+                        // date param which save to format 2024-09-27
+                        date: new Date(visit.updated_at)
+                            .toISOString()
+                            .split("T")[0],
+                        // title which came wit visit.title
+                        title: visit.title,
+                        description: visit.description,
+                    }))
+                );
+            })
+            .catch((error) => console.error("Błąd:", error));
+    }, []);
+
+    console.log({ visits });
 
     const viewNamesMap: Record<string, string> = {
         dayGridMonth: "Month",
@@ -70,6 +99,7 @@ export default function Dashboard({ auth }: PageProps) {
         setSelectedEventTitle(
             `${info.event._def.extendedProps.time} ${info.event.title}`
         ); // Set the event title
+        setSelectedEventDescription(info.event._def.extendedProps.description); // Set the event description
         setIsDialogOpen(true); // Open the dialog
     };
 
@@ -229,12 +259,13 @@ export default function Dashboard({ auth }: PageProps) {
         });
 
         document.querySelector(".aside-title")?.classList.toggle("hidden");
-        // set aspect ratio for calendar
         if (document.querySelector(".fc-view")) {
             document
                 .querySelector(".fc-view")
                 ?.classList.toggle("aspect-ratio-1.92");
         }
+
+        calendarRef.current?.props.themeSystem === "standard";
     };
 
     return (
@@ -573,32 +604,12 @@ export default function Dashboard({ auth }: PageProps) {
                             multiMonthTitleFormat={{ month: "long" }}
                             displayEventTime={true}
                             initialView="dayGridMonth"
-                            events={[
-                                {
-                                    title: "event 1",
-                                    date: "2024-09-02",
-                                    time: "10:00",
-                                },
-                                {
-                                    title: "event 2",
-                                    date: "2024-09-16",
-                                    time: "17:00",
-                                },
-                                {
-                                    title: "event 3",
-                                    date: "2024-09-27",
-                                    time: "10:00",
-                                },
-                            ]}
+                            events={visits}
                             customButtons={{
                                 myCustomButton: {
                                     text: "Open",
-                                    click: () => {
-                                        setTimeout(() => {
-                                            document
-                                                .getElementById("radix-:r3:")
-                                                ?.click();
-                                        }, 10);
+                                    click: function () {
+                                        // clci
                                     },
                                 },
                             }}
@@ -614,9 +625,18 @@ export default function Dashboard({ auth }: PageProps) {
                                     duration: { months: 12 },
                                     buttonText: "year",
                                 },
+                                // full day format
+                                timeGridDay: {
+                                    titleFormat: {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    },
+                                },
                             }}
                             datesSet={(dateInfo) => {
                                 setCurrentView(dateInfo.view.type); // Update current view on view change
+                                setCalendarTitle(dateInfo.view.title); // Update the calendar title
                             }}
                         />
                     </div>
@@ -630,7 +650,7 @@ export default function Dashboard({ auth }: PageProps) {
                         <DialogHeader>
                             <DialogTitle>{selectedEventTitle}</DialogTitle>
                             <DialogDescription>
-                                Here are the details for the selected event.
+                                {selectedEventDescription}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
