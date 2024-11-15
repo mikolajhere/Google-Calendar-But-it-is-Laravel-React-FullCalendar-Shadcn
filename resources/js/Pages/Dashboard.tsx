@@ -271,8 +271,8 @@ export default function Dashboard({ auth }: PageProps) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Dashboard" />
-            <div className="flex flex-wrap h-full">
-                <header className="w-full flex items-center justify-between px-4 py-2 border-b border-gray-200">
+            <div className="flex flex-wrap h-[calc(100vh-65px)] flex-1">
+                <header className="w-full flex items-center justify-between px-4 py-2 border-b border-gray-200  ">
                     <div className="gap-2 flex items-center justify-between">
                         <Button
                             onClick={asideToggleMenu}
@@ -429,7 +429,7 @@ export default function Dashboard({ auth }: PageProps) {
                         </div>
                     </div>
                 </header>
-                <div className="flex-1 flex">
+                <div className="flex-1 flex h-full">
                     <aside className="h-full border-r p-2 mini-calendar max-w-64 relative">
                         <Popover>
                             <PopoverTrigger asChild>
@@ -581,7 +581,8 @@ export default function Dashboard({ auth }: PageProps) {
                             moreLinkClick="popover"
                             locale={"en"}
                             themeSystem="standard"
-                            aspectRatio={1.92}
+                            height={"100%"}
+                            // aspectRatio={1.92}
                             selectable={true}
                             nowIndicator={true}
                             editable={true}
